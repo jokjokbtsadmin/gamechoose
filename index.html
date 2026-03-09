@@ -3,73 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Game Tinder - Multiplayer Edition</title>
+    <title>Game Tinder - Pure Co-op Edition</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #121212; color: white; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
-        
-        /* Экран фильтров */
-        #filter-screen { width: 100%; height: 100%; padding: 25px; box-sizing: border-box; text-align: center; overflow-y: auto; background: #121212; position: absolute; top: 0; left: 0; z-index: 200; display: flex; flex-direction: column; justify-content: center; }
-        .filter-group { margin-bottom: 20px; text-align: left; }
-        .filter-group label { display: block; margin-bottom: 10px; color: #aaa; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; }
-        select { width: 100%; padding: 15px; background: #1e1e1e; color: white; border: 1px solid #333; border-radius: 12px; font-size: 1rem; outline: none; transition: border 0.3s; }
-        select:focus { border-color: #2ed573; }
-        .start-btn { width: 100%; padding: 18px; background: #2ed573; color: white; border: none; border-radius: 12px; font-size: 1.2rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(46, 213, 115, 0.3); }
-
-        /* Загрузка */
-        #loader { display: none; text-align: center; color: #2ed573; font-weight: bold; }
-
-        /* Карточки */
-        .card-container { position: relative; width: 330px; height: 490px; display: none; }
-        .card { position: absolute; width: 100%; height: 100%; background: #1e1e1e; border-radius: 25px; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.6); display: flex; flex-direction: column; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s; border: 1px solid #333; }
-        .card img { width: 100%; height: 65%; object-fit: cover; pointer-events: none; }
-        .card-info { padding: 20px; text-align: center; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; }
-        .card h2 { margin: 0 0 8px 0; font-size: 1.2rem; line-height: 1.2; }
-        .card p { color: #888; font-size: 0.85rem; margin: 0; }
-        
-        /* Кнопки управления */
+        body { font-family: 'Segoe UI', sans-serif; background: #0f0f0f; color: white; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+        #filter-screen { width: 100%; height: 100%; padding: 30px; box-sizing: border-box; text-align: center; background: #0f0f0f; position: absolute; z-index: 200; display: flex; flex-direction: column; justify-content: center; }
+        .filter-group { margin-bottom: 25px; text-align: left; }
+        .filter-group label { display: block; margin-bottom: 8px; color: #5bc0de; font-size: 0.8rem; text-transform: uppercase; font-weight: bold; }
+        select { width: 100%; padding: 16px; background: #1a1a1a; color: white; border: 2px solid #333; border-radius: 15px; font-size: 1rem; outline: none; }
+        .start-btn { width: 100%; padding: 20px; background: #2ed573; color: white; border: none; border-radius: 15px; font-size: 1.2rem; font-weight: bold; cursor: pointer; box-shadow: 0 5px 20px rgba(46, 213, 115, 0.4); }
+        #loader { display: none; text-align: center; color: #2ed573; font-size: 1.2rem; }
+        .card-container { position: relative; width: 340px; height: 500px; display: none; }
+        .card { position: absolute; width: 100%; height: 100%; background: #1a1a1a; border-radius: 25px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.7); display: flex; flex-direction: column; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s; border: 1px solid #2a2a2a; }
+        .card img { width: 100%; height: 65%; object-fit: cover; }
+        .card-info { padding: 20px; text-align: center; }
+        .card h2 { margin: 0; font-size: 1.3rem; margin-bottom: 10px; }
         .buttons { position: fixed; bottom: 40px; display: none; gap: 40px; z-index: 10; }
-        button.swipe-btn { border: none; width: 70px; height: 70px; border-radius: 50%; font-size: 30px; cursor: pointer; color: white; box-shadow: 0 5px 20px rgba(0,0,0,0.4); transition: transform 0.2s; }
-        .no { background: #ff4757; }
-        .yes { background: #2ed573; }
-        button:active { transform: scale(0.85); }
-
-        /* Экран финала */
-        #final-screen { display: none; width: 100%; height: 100%; padding: 25px; box-sizing: border-box; overflow-y: auto; text-align: center; background: #121212; position: absolute; top: 0; left: 0; z-index: 300; }
-        .top-item { background: #1e1e1e; padding: 15px; margin: 10px 0; border-radius: 12px; border-left: 5px solid #2ed573; text-align: left; font-size: 1rem; }
+        .swipe-btn { border: none; width: 75px; height: 75px; border-radius: 50%; font-size: 32px; cursor: pointer; color: white; transition: 0.2s; }
+        .no { background: #ff4757; } .yes { background: #2ed573; }
+        #final-screen { display: none; width: 100%; height: 100%; padding: 25px; box-sizing: border-box; overflow-y: auto; background: #0f0f0f; position: absolute; z-index: 300; text-align: center; }
+        .top-item { background: #1a1a1a; padding: 15px; margin: 10px 0; border-radius: 15px; border-left: 5px solid #2ed573; text-align: left; }
     </style>
 </head>
 <body>
 
     <div id="filter-screen">
-        <h1 style="color: #2ed573; margin-top: 0; font-size: 2rem;">Настрой поиск 🎮</h1>
-        
+        <h1 style="color: #2ed573;">Game Tinder 🎮</h1>
         <div class="filter-group">
-            <label>Основной Жанр</label>
+            <label>Жанр</label>
             <select id="genre-select">
-                <option value="">Все жанры</option>
-                <option value="action">Экшен</option>
-                <option value="role-playing-games-rpg">RPG</option>
-                <option value="shooter">Шутер</option>
-                <option value="adventure">Приключения</option>
-                <option value="strategy">Стратегия</option>
-                <option value="sports">Спорт / Гонки</option>
+                <option value="">Любой жанр</option>
+                <option value="4">Экшен</option>
+                <option value="5">RPG</option>
+                <option value="2">Шутер</option>
+                <option value="3">Приключения</option>
             </select>
         </div>
-
         <div class="filter-group">
-            <label>Тип прохождения</label>
+            <label>Режим</label>
             <select id="mode-select">
                 <option value="any">Любой</option>
-                <option value="singleplayer">Одиночная (Single)</option>
-                <option value="multiplayer">Кооператив / Мультиплеер</option>
+                <option value="single">Только Одиночная</option>
+                <option value="coop">Только Кооператив</option>
             </select>
         </div>
-
         <button class="start-btn" onclick="applyFilters()">Найти игры</button>
     </div>
 
-    <div id="loader">✨ Магия API в процессе...</div>
+    <div id="loader">Анализируем базу... 🔍</div>
 
     <div class="card-container" id="container"></div>
 
@@ -79,9 +60,9 @@
     </div>
 
     <div id="final-screen">
-        <h2 style="color: #2ed573;">Твой список желаемого</h2>
+        <h2 style="color: #2ed573;">Твой выбор</h2>
         <div id="top-list"></div>
-        <button onclick="location.reload()" style="background: #5352ed; color: white; border: none; padding: 15px 30px; border-radius: 12px; margin-top: 20px; font-weight: bold;">Начать заново</button>
+        <button onclick="location.reload()" style="background: #5352ed; color: white; border: none; padding: 15px 30px; border-radius: 15px; margin-top: 20px;">Заново</button>
     </div>
 
     <script>
@@ -100,102 +81,78 @@
             document.getElementById('filter-screen').style.display = 'none';
             document.getElementById('loader').style.display = 'block';
 
-            // Генерируем случайную страницу от 1 до 10 для разнообразия
-            const randomPage = Math.floor(Math.random() * 10) + 1;
+            // Берем случайную страницу из первых 5 (самые популярные)
+            const randomPage = Math.floor(Math.random() * 5) + 1;
             
-            // Запрашиваем 40 игр, чтобы после ручной фильтрации осталось хотя бы 20
-            let apiUrl = `https://api.rawg.io/api/games?key=${API_KEY}&page_size=40&page=${randomPage}&ordering=-metacritic&platforms=4`;
-            
+            // Запрос: Metacritic 60+, сортировка по популярности (-added)
+            let apiUrl = `https://api.rawg.io/api/games?key=${API_KEY}&page_size=50&page=${randomPage}&ordering=-added&metacritic=60,100`;
             if (genre) apiUrl += `&genres=${genre}`;
-            if (mode === 'multiplayer') apiUrl += `&tags=multiplayer,co-op`;
-            if (mode === 'singleplayer') apiUrl += `&tags=singleplayer`;
 
             try {
                 const response = await fetch(apiUrl);
                 const data = await response.json();
                 
-                let rawResults = data.results;
+                let filtered = data.results;
 
-                // Ручная фильтрация для точности мультиплеера
-                if (mode === 'multiplayer') {
-                    rawResults = rawResults.filter(g => 
-                        g.tags.some(t => t.slug === 'multiplayer' || t.slug === 'co-op' || t.slug === 'co-operative')
+                // СТРОГАЯ ФИЛЬТРАЦИЯ В КОДЕ
+                if (mode === 'coop') {
+                    filtered = filtered.filter(g => 
+                        g.tags && g.tags.some(t => 
+                            ['co-op', 'co-operative', 'multiplayer'].includes(t.slug)
+                        )
+                    );
+                } else if (mode === 'single') {
+                    filtered = filtered.filter(g => 
+                        g.tags && g.tags.some(t => t.slug === 'singleplayer')
                     );
                 }
 
-                // Перемешиваем массив результатов еще раз
-                games = rawResults.sort(() => Math.random() - 0.5).slice(0, 20).map(g => ({
+                games = filtered.slice(0, 20).map(g => ({
                     title: g.name,
-                    img: g.background_image || 'https://via.placeholder.com/320x480?text=No+Image',
-                    genre: g.genres.slice(0, 2).map(genre => genre.name).join(', '),
-                    rating: g.metacritic || g.rating || "—"
+                    img: g.background_image,
+                    genre: g.genres.slice(0, 1).map(gn => gn.name),
+                    rating: g.rating
                 }));
-                
-                if (games.length === 0) throw new Error("Нет игр");
+
+                if (games.length === 0) throw new Error();
 
                 document.getElementById('loader').style.display = 'none';
                 document.getElementById('container').style.display = 'block';
                 document.getElementById('controls').style.display = 'flex';
                 renderCard();
             } catch (e) {
-                document.getElementById('loader').innerHTML = "По этим фильтрам ничего не найдено 😢<br><br><button onclick='location.reload()' style='color:white; background:#5352ed; border:none; padding:10px 20px; border-radius:10px;'>Назад</button>";
+                document.getElementById('loader').innerHTML = "Игр не найдено. Попробуй другие фильтры!<br><br><button onclick='location.reload()'>Назад</button>";
             }
         }
 
         function renderCard() {
-            if (currentIdx >= games.length) {
-                showFinalScreen();
-                return;
-            }
+            if (currentIdx >= games.length) { showFinalScreen(); return; }
             const game = games[currentIdx];
-            const container = document.getElementById('container');
-            container.innerHTML = `
+            document.getElementById('container').innerHTML = `
                 <div class="card" id="active-card">
                     <img src="${game.img}">
                     <div class="card-info">
                         <h2>${game.title}</h2>
-                        <p>${game.genre}</p>
-                        <div style="margin-top:10px; color:#2ed573; font-weight:bold;">Metascore: ${game.rating}</div>
+                        <p>${game.genre} | ⭐ ${game.rating}</p>
                     </div>
                 </div>
             `;
         }
 
-        function swipe(direction) {
+        function swipe(dir) {
             const card = document.getElementById('active-card');
             if (!card) return;
-
-            card.style.transform = direction === 'right' 
-                ? 'translateX(300px) rotate(30deg)' 
-                : 'translateX(-300px) rotate(-30deg)';
+            card.style.transform = dir === 'right' ? 'translateX(400px) rotate(40deg)' : 'translateX(-400px) rotate(-40deg)';
             card.style.opacity = '0';
-
-            if (direction === 'right') {
-                likedGames.push(games[currentIdx].title);
-            }
-
-            setTimeout(() => {
-                currentIdx++;
-                renderCard();
-            }, 300);
+            if (dir === 'right') likedGames.push(games[currentIdx].title);
+            setTimeout(() => { currentIdx++; renderCard(); }, 300);
         }
 
         function showFinalScreen() {
             document.getElementById('controls').style.display = 'none';
             document.getElementById('container').style.display = 'none';
-            const screen = document.getElementById('final-screen');
-            const list = document.getElementById('top-list');
-            screen.style.display = 'block';
-            
-            if (likedGames.length === 0) {
-                list.innerHTML = "<p style='color:#888;'>Вы ничего не выбрали в этот раз.</p>";
-            } else {
-                list.innerHTML = likedGames.map((g, i) => `
-                    <div class="top-item">
-                        <strong>${i + 1}.</strong> ${g}
-                    </div>
-                `).join('');
-            }
+            document.getElementById('final-screen').style.display = 'block';
+            document.getElementById('top-list').innerHTML = likedGames.map((g, i) => `<div class="top-item">${i+1}. ${g}</div>`).join('');
         }
     </script>
 </body>
