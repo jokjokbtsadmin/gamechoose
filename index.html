@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Game Tinder</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body { font-family: sans-serif; background: #1a1a1a; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; margin: 0; }
+        .card-container { position: relative; width: 300px; height: 450px; }
+        .card { position: absolute; width: 100%; height: 100%; background: #2a2a2a; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: flex; flex-direction: column; transition: transform 0.3s ease, opacity 0.3s ease; cursor: grab; }
+        .card img { width: 100%; height: 70%; border-radius: 20px 20px 0 0; object-fit: cover; pointer-events: none; }
+        .card-info { padding: 15px; }
+        .card h2 { margin: 0; font-size: 1.2rem; }
+        .card p { color: #aaa; font-size: 0.9rem; }
+        .buttons { position: fixed; bottom: 50px; display: flex; gap: 40px; }
+        button { border: none; width: 60px; height: 60px; border-radius: 50%; font-size: 24px; cursor: pointer; color: white; transition: 0.2s; }
+        .no { background: #ff4d4d; }
+        .yes { background: #4caf50; }
+        button:active { transform: scale(0.9); }
+    </style>
+</head>
+<body>
+
+    <div class="card-container" id="container">
+        </div>
+
+    <div class="buttons">
+        <button class="no" onclick="swipe('left')">✖</button>
+        <button class="yes" onclick="swipe('right')">❤</button>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand(); // Развернуть на весь экран
+
+        const games = [
+            { id: 1, title: "Elden Ring", img: "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1245620/header.jpg", genre: "Action/RPG" },
+            { id: 2, title: "Cyberpunk 2077", img: "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1091500/header.jpg", genre: "RPG" },
+            { id: 3, title: "The Witcher 3", img: "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/292030/header.jpg", genre: "Open World" },
+            { id: 4, title: "Stray", img: "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1332010/header.jpg", genre: "Adventure" }
+        ];
+
+        let likedGames = [];
+        let currentIdx = 0;
+
+        function renderCard() {
+            if (currentIdx >= games.length) {
+                tg.sendData(JSON.stringify({type: "finished", games: likedGames}));
+                alert("Ты просмотрел все игры! Твой топ готов.");
+                tg.close();
+                return;
+            }
+            
+            const game = games[currentIdx];
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.id = 'active-card';
+            card.innerHTML = `
+                <img src="${game.img}">
+                <div class="card-info">
+                    <h2>${game.title}</h2>
+                    <p>${game.genre}</p>
+                </div>
+            `;
+            document.getElementById('container').appendChild(card);
+        }
+
+        function swipe(direction) {
+            const card = document.getElementById('active-card');
+            if (!card) return;
+
+            if (direction === 'right') {
+                likedGames.push(games[currentIdx].title);
+                card.style.transform = 'translateX(200px) rotate(20deg)';
+            } else {
+                card.style.transform = 'translateX(-200px) rotate(-20deg)';
+            }
+            
+            card.style.opacity = '0';
+            currentIdx++;
+
+            setTimeout(() => {
+                card.remove();
+                renderCard();
+            }, 300);
+        }
+
+        renderCard();
+    </script>
+</body>
+</html>
